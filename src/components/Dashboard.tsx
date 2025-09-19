@@ -1,122 +1,52 @@
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, TrendingUp, TrendingDown, DollarSign, Filter, LogOut } from "lucide-react";
-import { TransactionList } from "./TransactionList";
-import { QuickActions } from "./QuickActions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LogOut, BarChart3, PieChart, Users, Receipt, TrendingUp, DollarSign, Home, CreditCard, Smartphone } from "lucide-react";
 import { BalanceCard } from "./BalanceCard";
-import { supabase } from "@/integrations/supabase/client";
+import { InvestmentManagement } from "./InvestmentManagement";
+import { ExpenseManagement } from "./ExpenseManagement";
+import { CustomerPaymentManagement } from "./CustomerPaymentManagement";
+import { AnalyticsDashboard } from "./AnalyticsDashboard";
+import { investmentAPI, expenseAPI, customerPaymentAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-interface Transaction {
-  id: string;
-  type: "income" | "expense" | "investment";
-  amount: number;
-  description: string;
-  payment_mode: string;
-  date: string;
-  created_by: string;
-}
-
-// Helper function to map database records to UI format
-const mapTransactionFromDB = (dbTransaction: any): Transaction => ({
-  id: dbTransaction.id,
-  type: dbTransaction.type,
-  amount: dbTransaction.amount,
-  description: dbTransaction.description,
-  payment_mode: dbTransaction.payment_mode,
-  date: dbTransaction.date,
-  created_by: dbTransaction.created_by,
-});
-
-// Sample data - will be replaced with Supabase data
-const sampleTransactions: Transaction[] = [
-  {
-    id: "1",
-    type: "income",
-    amount: 2500,
-    description: "Customer payment",
-    payment_mode: "UPI",
-    date: "2024-01-15",
-    created_by: "Owner A"
-  },
-  {
-    id: "2",
-    type: "expense",
-    amount: 800,
-    description: "Office supplies",
-    payment_mode: "Cash",
-    date: "2024-01-14",
-    created_by: "Owner B"
-  },
-  {
-    id: "3",
-    type: "investment",
-    amount: 5000,
-    description: "Capital injection",
-    payment_mode: "Bank Transfer",
-    date: "2024-01-13",
-    created_by: "Owner A"
-  }
-];
-
 export function Dashboard() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filter, setFilter] = useState<"all" | "income" | "expense" | "investment">("all");
+  const [investments, setInvestments] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
-  // Load transactions from Supabase
+  // Load data from new tables
   useEffect(() => {
     if (!user) return;
     
-    const loadTransactions = async () => {
+    const loadData = async () => {
       try {
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Error loading transactions:', error);
-          toast.error('Failed to load transactions');
-        } else {
-          const mappedTransactions = (data || []).map(mapTransactionFromDB);
-          setTransactions(mappedTransactions);
-        }
+        setLoading(true);
+        
+        // Load investments, expenses, and payments
+        const [investmentsData, expensesData, paymentsData] = await Promise.all([
+          investmentAPI.getAll(user.id),
+          expenseAPI.getAll(user.id),
+          customerPaymentAPI.getAll(user.id)
+        ]);
+        
+        setInvestments(investmentsData);
+        setExpenses(expensesData);
+        setPayments(paymentsData);
+        
       } catch (error) {
-        console.error('Error loading transactions:', error);
-        toast.error('Failed to load transactions');
+        console.error('Error loading data:', error);
+        toast.error('Failed to load data');
       } finally {
         setLoading(false);
       }
     };
 
-    loadTransactions();
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('transactions-changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'transactions' },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            setTransactions(prev => [mapTransactionFromDB(payload.new), ...prev]);
-          } else if (payload.eventType === 'DELETE') {
-            setTransactions(prev => prev.filter(t => t.id !== payload.old.id));
-          } else if (payload.eventType === 'UPDATE') {
-            setTransactions(prev => prev.map(t => 
-              t.id === payload.new.id ? mapTransactionFromDB(payload.new) : t
-            ));
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    loadData();
   }, [user]);
 
   const handleSignOut = async () => {
@@ -124,52 +54,17 @@ export function Dashboard() {
     toast.success('Logged out successfully');
   };
 
-  const addTransaction = async (transaction: Omit<Transaction, 'id' | 'created_by'>) => {
-    if (!user || !profile) return;
-
-    try {
-      const { error } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user.id,
-          type: transaction.type,
-          amount: transaction.amount,
-          description: transaction.description,
-          payment_mode: transaction.payment_mode,
-          date: transaction.date,
-          created_by: profile.display_name || profile.username
-        });
-
-      if (error) {
-        console.error('Error adding transaction:', error);
-        toast.error('Failed to add transaction');
-      } else {
-        toast.success('Transaction added successfully');
-      }
-    } catch (error) {
-      console.error('Error adding transaction:', error);
-      toast.error('Failed to add transaction');
-    }
-  };
-
-  const deleteTransaction = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('transactions')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error deleting transaction:', error);
-        toast.error('Failed to delete transaction');
-      } else {
-        toast.success('Transaction deleted successfully');
-      }
-    } catch (error) {
-      console.error('Error deleting transaction:', error);
-      toast.error('Failed to delete transaction');
-    }
-  };
+  // Calculate balance from new data sources
+  const totalInvestments = investments.reduce((sum, inv) => {
+    const currentValue = inv.current_price && inv.quantity 
+      ? inv.current_price * inv.quantity 
+      : inv.amount;
+    return sum + currentValue;
+  }, 0);
+  
+  const totalIncome = payments.reduce((sum, payment) => sum + payment.amount, 0);
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const currentBalance = totalInvestments + totalIncome - totalExpenses;
 
   if (loading) {
     return (
@@ -182,69 +77,208 @@ export function Dashboard() {
     );
   }
 
-  // Calculate balance
-  const totalInvestments = transactions
-    .filter(t => t.type === "investment")
-    .reduce((sum, t) => sum + t.amount, 0);
-  
-  const totalIncome = transactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-  
-  const totalExpenses = transactions
-    .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const currentBalance = totalInvestments + totalIncome - totalExpenses;
-
-  const filteredTransactions = filter === "all" 
-    ? transactions 
-    : transactions.filter(t => t.type === filter);
 
   return (
-    <div className="min-h-screen bg-background p-4 max-w-md mx-auto">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Money Manager</h1>
-          <p className="text-muted-foreground">Welcome, {profile?.display_name || profile?.username}</p>
+      <div className="sticky top-0 z-10 bg-background border-b p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">JoyFinance</h1>
+            <p className="text-sm text-muted-foreground">Welcome, {user?.display_name || user?.username}</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
-        <Button variant="outline" size="icon" onClick={handleSignOut}>
-          <LogOut className="h-4 w-4" />
-        </Button>
       </div>
 
-      {/* Balance Card */}
-      <BalanceCard 
-        balance={currentBalance}
-        income={totalIncome}
-        expenses={totalExpenses}
-        investments={totalInvestments}
-      />
+      {/* Main Dashboard with Tabs */}
+      <div className="p-4">
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
+            <TabsTrigger value="overview" className="flex flex-col items-center space-y-1 p-2">
+              <BarChart3 className="h-4 w-4" />
+              <span className="text-xs">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="investments" className="flex flex-col items-center space-y-1 p-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="text-xs">Investments</span>
+            </TabsTrigger>
+            <TabsTrigger value="expenses" className="flex flex-col items-center space-y-1 p-2">
+              <Receipt className="h-4 w-4" />
+              <span className="text-xs">Expenses</span>
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex flex-col items-center space-y-1 p-2">
+              <Users className="h-4 w-4" />
+              <span className="text-xs">Payments</span>
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="flex flex-col items-center space-y-1 p-2">
+              <DollarSign className="h-4 w-4" />
+              <span className="text-xs">Summary</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex flex-col items-center space-y-1 p-2">
+              <PieChart className="h-4 w-4" />
+              <span className="text-xs">Analytics</span>
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Quick Actions */}
-      <QuickActions onAddTransaction={addTransaction} />
 
-      {/* Filter Chips */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        {["all", "income", "expense", "investment"].map((filterOption) => (
-          <button
-            key={filterOption}
-            onClick={() => setFilter(filterOption as any)}
-            className={`filter-chip whitespace-nowrap ${
-              filter === filterOption ? "active" : ""
-            }`}
-          >
-            {filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
-          </button>
-        ))}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Balance Card */}
+          <BalanceCard 
+            balance={currentBalance}
+            income={totalIncome}
+            expenses={totalExpenses}
+            investments={totalInvestments}
+          />
+
+          {/* Income Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                Income
+              </CardTitle>
+              <CardDescription>Customer payments and income sources</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Total Income */}
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{totalIncome.toLocaleString()}</div>
+                  <div className="text-sm text-muted-foreground">Total Income</div>
+                </div>
+                
+                {/* Payment Type Segregation */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="text-center p-3 border rounded-lg">
+                    <div className="text-lg font-bold text-green-600">
+                      {payments.filter(p => p.payment_method === 'cash').reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                      <DollarSign className="h-3 w-3" />
+                      Cash
+                    </div>
+                  </div>
+                  <div className="text-center p-3 border rounded-lg">
+                    <div className="text-lg font-bold text-green-600">
+                      {payments.filter(p => p.payment_method === 'upi').reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                      <Smartphone className="h-3 w-3" />
+                      UPI
+                    </div>
+                  </div>
+                  <div className="text-center p-3 border rounded-lg">
+                    <div className="text-lg font-bold text-green-600">
+                      {payments.filter(p => !['cash', 'upi'].includes(p.payment_method)).reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                      <CreditCard className="h-3 w-3" />
+                      Other
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Expenses Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Receipt className="h-5 w-5 text-red-600" />
+                Expenses
+              </CardTitle>
+              <CardDescription>Your spending breakdown by category and payment method</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Total Expenses */}
+                <div className="text-center p-4 bg-red-50 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600">{totalExpenses.toLocaleString()}</div>
+                  <div className="text-sm text-muted-foreground">Total Expenses</div>
+                </div>
+                
+                {/* Payment Type Segregation */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="text-center p-3 border rounded-lg">
+                    <div className="text-lg font-bold text-red-600">
+                      {expenses.filter(e => e.payment_method === 'cash').reduce((sum, e) => sum + e.amount, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                      <DollarSign className="h-3 w-3" />
+                      Cash
+                    </div>
+                  </div>
+                  <div className="text-center p-3 border rounded-lg">
+                    <div className="text-lg font-bold text-red-600">
+                      {expenses.filter(e => e.payment_method === 'upi').reduce((sum, e) => sum + e.amount, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                      <Smartphone className="h-3 w-3" />
+                      UPI
+                    </div>
+                  </div>
+                  <div className="text-center p-3 border rounded-lg">
+                    <div className="text-lg font-bold text-red-600">
+                      {expenses.filter(e => !['cash', 'upi'].includes(e.payment_method)).reduce((sum, e) => sum + e.amount, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                      <CreditCard className="h-3 w-3" />
+                      Other
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+        </TabsContent>
+
+        <TabsContent value="investments">
+          <InvestmentManagement />
+        </TabsContent>
+
+        <TabsContent value="expenses">
+          <ExpenseManagement />
+        </TabsContent>
+
+        <TabsContent value="payments">
+          <CustomerPaymentManagement />
+        </TabsContent>
+
+        <TabsContent value="transactions" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Transaction Summary</CardTitle>
+              <CardDescription>Overview of all your financial activities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="text-xl font-bold text-green-600">{investments.length}</div>
+                  <div className="text-xs text-muted-foreground">Investments</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="text-xl font-bold text-red-600">{expenses.length}</div>
+                  <div className="text-xs text-muted-foreground">Expenses</div>
+                </div>
+                <div className="text-center p-3 border rounded-lg">
+                  <div className="text-xl font-bold text-blue-600">{payments.length}</div>
+                  <div className="text-xs text-muted-foreground">Customer Payments</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <AnalyticsDashboard />
+        </TabsContent>
+        </Tabs>
       </div>
-
-      {/* Transaction List */}
-      <TransactionList 
-        transactions={filteredTransactions}
-        onDeleteTransaction={deleteTransaction}
-      />
     </div>
   );
 }

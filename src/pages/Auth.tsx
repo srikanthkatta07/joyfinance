@@ -46,32 +46,47 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signUp(
-      signupForm.username,
-      signupForm.mobileNumber,
-      signupForm.password,
-      signupForm.displayName
-    );
-    
-    if (error) {
-      toast.error(error.message || "Signup failed");
-    } else {
-      toast.success("Account created successfully!");
-      navigate("/");
+    try {
+      const { error } = await signUp(
+        signupForm.username,
+        signupForm.mobileNumber,
+        signupForm.password,
+        signupForm.displayName
+      );
+      
+      if (error) {
+        console.error('Signup error:', error);
+        toast.error(error.message || "Signup failed. Please try again.");
+      } else {
+        toast.success("Account created successfully! You can now log in.");
+        // Reset form
+        setSignupForm({
+          username: "",
+          mobileNumber: "",
+          password: "",
+          displayName: "",
+        });
+        // Switch to login tab
+        const loginTab = document.querySelector('[value="login"]') as HTMLElement;
+        if (loginTab) loginTab.click();
+      }
+    } catch (error) {
+      console.error('Signup exception:', error);
+      toast.error("An unexpected error occurred. Please try again.");
     }
     
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4">
-            <Smartphone className="w-8 h-8 text-primary-foreground" />
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-primary rounded-full mb-3">
+            <Smartphone className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Money Manager</h1>
-          <p className="text-muted-foreground">Shop Dashboard Access</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">JoyFinance</h1>
+          <p className="text-sm text-muted-foreground">Manage your finances</p>
         </div>
 
         <Tabs defaultValue="login" className="w-full">

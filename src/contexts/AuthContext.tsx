@@ -1,19 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
 
-interface Profile {
+interface CustomUser {
   id: string;
-  user_id: string;
   username: string;
   mobile_number: string;
   display_name?: string;
+  created_at: string;
 }
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  profile: Profile | null;
+  user: CustomUser | null;
   loading: boolean;
   signUp: (username: string, mobileNumber: string, password: string, displayName?: string) => Promise<{ error: any }>;
   signIn: (username: string, password: string) => Promise<{ error: any }>;
@@ -23,117 +20,100 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<CustomUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user profile
-          setTimeout(async () => {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('user_id', session.user.id)
-              .maybeSingle();
-            setProfile(profileData);
-          }, 0);
-        } else {
-          setProfile(null);
+    // Check for existing session in localStorage
+    const checkAuth = async () => {
+      try {
+        const storedUser = localStorage.getItem('joyfinance_user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
         }
+      } catch (error) {
+        console.error('Error checking auth:', error);
+        localStorage.removeItem('joyfinance_user');
+      } finally {
+        setLoading(false);
       }
-    );
+    };
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    checkAuth();
   }, []);
 
   const signUp = async (username: string, mobileNumber: string, password: string, displayName?: string) => {
     try {
-      const email = `${username}@shopmanager.local`; // Create email from username
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            username,
-            mobile_number: mobileNumber,
-            display_name: displayName || username
-          }
-        }
-      });
-
-      if (error) return { error };
+      // Simple password hashing (in production, use a proper library)
+      const passwordHash = btoa(password + 'salt');
       
-      // Create profile
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: data.user.id,
-            username,
-            mobile_number: mobileNumber,
-            display_name: displayName || username
-          });
-        
-        if (profileError) return { error: profileError };
+      const { data, error } = await supabase
+        .from('custom_users')
+        .insert({
+          username,
+          password_hash: passwordHash,
+          mobile_number: mobileNumber,
+          display_name: displayName || username
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Registration error:', error);
+        return { error };
       }
 
-      return { error: null };
+      if (data) {
+        setUser(data);
+        localStorage.setItem('joyfinance_user', JSON.stringify(data));
+        return { error: null };
+      }
+
+      return { error: { message: 'Registration failed' } };
     } catch (error) {
+      console.error('Registration exception:', error);
       return { error };
     }
   };
 
   const signIn = async (username: string, password: string) => {
     try {
-      // First find the profile by username to get the email
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('user_id')
+      // Simple password hashing (in production, use a proper library)
+      const passwordHash = btoa(password + 'salt');
+      
+      const { data, error } = await supabase
+        .from('custom_users')
+        .select('*')
         .eq('username', username)
-        .maybeSingle();
+        .eq('password_hash', passwordHash)
+        .single();
 
-      if (profileError || !profileData) {
+      if (error) {
+        console.error('Authentication error:', error);
         return { error: { message: 'Invalid username or password' } };
       }
 
-      const email = `${username}@shopmanager.local`;
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      if (data) {
+        setUser(data);
+        localStorage.setItem('joyfinance_user', JSON.stringify(data));
+        return { error: null };
+      }
 
-      return { error };
+      return { error: { message: 'Invalid username or password' } };
     } catch (error) {
-      return { error };
+      console.error('Authentication exception:', error);
+      return { error: { message: 'Invalid username or password' } };
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
+    setUser(null);
+    localStorage.removeItem('joyfinance_user');
   };
 
   return (
     <AuthContext.Provider value={{
       user,
-      session,
-      profile,
       loading,
       signUp,
       signIn,
