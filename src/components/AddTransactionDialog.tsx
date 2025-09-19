@@ -10,7 +10,7 @@ interface Transaction {
   type: "income" | "expense" | "investment";
   amount: number;
   description: string;
-  paymentMode: string;
+  payment_mode: string;
   date: string;
 }
 
@@ -54,7 +54,7 @@ export function AddTransactionDialog({
       type: transactionType,
       amount: parseFloat(amount),
       description,
-      paymentMode,
+      payment_mode: paymentMode,
       date
     });
 

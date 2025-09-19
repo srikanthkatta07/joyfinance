@@ -7,9 +7,9 @@ interface Transaction {
   type: "income" | "expense" | "investment";
   amount: number;
   description: string;
-  paymentMode: string;
+  payment_mode: string;
   date: string;
-  createdBy: string;
+  created_by: string;
 }
 
 interface TransactionListProps {
@@ -98,22 +98,22 @@ export function TransactionList({ transactions, onDeleteTransaction }: Transacti
                 </p>
               </div>
               
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-muted-foreground">
-                  {transaction.paymentMode}
-                </span>
-                <span className="text-xs text-muted-foreground">•</span>
-                <span className="text-xs text-muted-foreground">
-                  {formatDate(transaction.date)}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-1 mt-1">
-                <User className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">
-                  {transaction.createdBy}
-                </span>
-              </div>
+               <div className="flex items-center gap-2 mt-1">
+                 <span className="text-xs text-muted-foreground">
+                   {transaction.payment_mode}
+                 </span>
+                 <span className="text-xs text-muted-foreground">•</span>
+                 <span className="text-xs text-muted-foreground">
+                   {formatDate(transaction.date)}
+                 </span>
+               </div>
+               
+               <div className="flex items-center gap-1 mt-1">
+                 <User className="h-3 w-3 text-muted-foreground" />
+                 <span className="text-xs text-muted-foreground">
+                   {transaction.created_by}
+                 </span>
+               </div>
             </div>
           </div>
 

@@ -7,7 +7,7 @@ interface Transaction {
   type: "income" | "expense" | "investment";
   amount: number;
   description: string;
-  paymentMode: string;
+  payment_mode: string;
   date: string;
 }
 
