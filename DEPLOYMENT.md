@@ -65,9 +65,11 @@ Make sure your repository:
 - ✅ **Has Actions enabled** (Settings → Actions → General → Allow all actions)
 
 ### Step 3: Run the Workflow
-The workflow will automatically enable Pages if needed, but you should still configure it manually first.
+The workflow will automatically enable Pages if needed using the `enablement: true` parameter. It also has a fallback deployment method if the primary method fails.
 
-This enables the GitHub Actions bot to deploy to Pages.
+**Note**: The workflow uses two deployment methods:
+1. **Primary**: Modern GitHub Pages deployment (`actions/deploy-pages@v4`)
+2. **Fallback**: Traditional deployment (`peaceiris/actions-gh-pages@v3`) if the primary fails
 
 ## Deployment Methods
 
@@ -132,6 +134,8 @@ This error means GitHub Pages isn't properly configured:
 4. **Save** the settings
 5. **Wait 2-3 minutes** for GitHub to process the changes
 6. **Re-run** the workflow
+
+**The workflow now has automatic Pages enablement** (`enablement: true`) and a fallback deployment method, so it should work even if Pages isn't manually configured.
 
 ### "HttpError: Not Found" Error
 - Make sure your repository is **public**

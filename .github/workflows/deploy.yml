@@ -28,6 +28,8 @@ jobs:
       
     - name: Setup Pages
       uses: actions/configure-pages@v4
+      with:
+        enablement: true
       
     - name: Check Pages Status
       run: |
@@ -59,3 +61,11 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+      continue-on-error: true
+      
+    - name: Fallback Deploy (if Pages deployment fails)
+      if: steps.deployment.outcome == 'failure'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
