@@ -14,11 +14,24 @@ export function AnalyticsDashboard() {
   const [expenseTrends, setExpenseTrends] = useState<any[]>([]);
   const [incomeTrends, setIncomeTrends] = useState<any[]>([]);
   const [expenseBreakdown, setExpenseBreakdown] = useState<Record<string, number>>({});
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (user) {
       loadAnalytics();
     }
+  }, [user]);
+
+  // Auto-refresh when component becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        loadAnalytics();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user]);
 
   const loadAnalytics = async () => {
@@ -60,6 +73,13 @@ export function AnalyticsDashboard() {
       month: 'short',
       year: 'numeric'
     });
+  };
+
+  // Handle tab change and refresh data
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Refresh data when switching tabs
+    loadAnalytics();
   };
 
   const getTotalExpensesByMonth = () => {
@@ -179,7 +199,7 @@ export function AnalyticsDashboard() {
       </div>
 
       {/* Detailed Analytics */}
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={handleTabChange} className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="trends">Trends</TabsTrigger>

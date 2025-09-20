@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, BarChart3, PieChart, Users, Receipt, TrendingUp, DollarSign, Home, CreditCard, Smartphone } from "lucide-react";
+import { LogOut, BarChart3, PieChart, Users, Receipt, TrendingUp, DollarSign, Home, CreditCard, Smartphone, AlertCircle } from "lucide-react";
 import { BalanceCard } from "./BalanceCard";
 import { InvestmentManagement } from "./InvestmentManagement";
 import { ExpenseManagement } from "./ExpenseManagement";
 import { CustomerPaymentManagement } from "./CustomerPaymentManagement";
 import { AnalyticsDashboard } from "./AnalyticsDashboard";
+import { AutoLogoutSettings } from "./AutoLogoutSettings";
+import { ChangePassword } from "./ChangePassword";
 import { investmentAPI, expenseAPI, customerPaymentAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -16,7 +18,9 @@ export function Dashboard() {
   const [investments, setInvestments] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
+  const [dueAmountSummary, setDueAmountSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
   const { user, signOut } = useAuth();
 
   // Load data from new tables
@@ -28,15 +32,17 @@ export function Dashboard() {
         setLoading(true);
         
         // Load investments, expenses, and payments
-        const [investmentsData, expensesData, paymentsData] = await Promise.all([
+        const [investmentsData, expensesData, paymentsData, dueSummary] = await Promise.all([
           investmentAPI.getAll(user.id),
           expenseAPI.getAll(user.id),
-          customerPaymentAPI.getAll(user.id)
+          customerPaymentAPI.getAll(user.id),
+          customerPaymentAPI.getDueAmountSummary(user.id)
         ]);
         
         setInvestments(investmentsData);
         setExpenses(expensesData);
         setPayments(paymentsData);
+        setDueAmountSummary(dueSummary);
         
       } catch (error) {
         console.error('Error loading data:', error);
@@ -54,15 +60,17 @@ export function Dashboard() {
     if (!user) return;
     
     try {
-      const [investmentsData, expensesData, paymentsData] = await Promise.all([
+      const [investmentsData, expensesData, paymentsData, dueSummary] = await Promise.all([
         investmentAPI.getAll(user.id),
         expenseAPI.getAll(user.id),
-        customerPaymentAPI.getAll(user.id)
+        customerPaymentAPI.getAll(user.id),
+        customerPaymentAPI.getDueAmountSummary(user.id)
       ]);
       
       setInvestments(investmentsData);
       setExpenses(expensesData);
       setPayments(paymentsData);
+      setDueAmountSummary(dueSummary);
     } catch (error) {
       console.error('Error refreshing data:', error);
     }
@@ -71,6 +79,15 @@ export function Dashboard() {
   const handleSignOut = async () => {
     await signOut();
     toast.success('Logged out successfully');
+  };
+
+  // Handle tab change and refresh data
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Refresh data when switching to overview or transactions tabs
+    if (value === 'overview' || value === 'transactions') {
+      refreshData();
+    }
   };
 
   // Calculate balance from new data sources
@@ -106,15 +123,19 @@ export function Dashboard() {
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">JoyCarDecors</h1>
             <p className="text-sm text-muted-foreground">Welcome, {user?.display_name || user?.username}</p>
         </div>
+        <div className="flex items-center gap-2">
+          <ChangePassword />
+          <AutoLogoutSettings />
           <Button variant="outline" size="sm" onClick={handleSignOut}>
           <LogOut className="h-4 w-4" />
         </Button>
+        </div>
         </div>
       </div>
 
       {/* Main Dashboard with Tabs */}
       <div className="p-4">
-        <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={handleTabChange} className="space-y-4">
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
             <TabsTrigger value="overview" className="flex flex-col items-center space-y-1 p-2">
               <BarChart3 className="h-4 w-4" />
@@ -202,6 +223,46 @@ export function Dashboard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Due Amounts Section */}
+          {dueAmountSummary && dueAmountSummary.total_due_amount > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-orange-600" />
+                  Outstanding Due Amounts
+                </CardTitle>
+                <CardDescription>Amounts still due from customers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Total Due Amount */}
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {dueAmountSummary.total_due_amount.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Total Due Amount</div>
+                  </div>
+                  
+                  {/* Due Amount Stats */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center p-3 border rounded-lg">
+                      <div className="text-lg font-bold text-orange-600">
+                        {dueAmountSummary.customers_with_due}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Customers with Due</div>
+                    </div>
+                    <div className="text-center p-3 border rounded-lg">
+                      <div className="text-lg font-bold text-orange-600">
+                        {dueAmountSummary.average_due_per_customer.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Avg Due per Customer</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Expenses Section */}
           <Card>

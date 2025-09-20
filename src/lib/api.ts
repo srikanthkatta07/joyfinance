@@ -207,6 +207,10 @@ export interface CustomerPayment {
   date: string;
   created_at: string;
   updated_at: string;
+  total_amount?: number;
+  due_amount?: number;
+  is_partial_payment?: boolean;
+  parent_payment_id?: string;
 }
 
 export interface CreateCustomerPaymentData {
@@ -216,6 +220,10 @@ export interface CreateCustomerPaymentData {
   description?: string;
   payment_mode: CustomerPayment['payment_mode'];
   date?: string;
+  total_amount?: number;
+  due_amount?: number;
+  is_partial_payment?: boolean;
+  parent_payment_id?: string;
 }
 
 export const customerPaymentAPI = {
@@ -279,6 +287,93 @@ export const customerPaymentAPI = {
       .eq('id', id);
 
     if (error) throw error;
+  },
+
+  // Get customers with due amounts
+  async getCustomersWithDueAmounts(userId: string) {
+    // Get all payments and calculate due amounts on frontend
+    const { data: payments, error } = await supabase
+      .from('customer_payments')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    
+    // Group payments by customer and calculate due amounts
+    const customerMap = new Map();
+    
+    // First, group all payments by customer
+    payments?.forEach((payment: any) => {
+      const customerName = payment.customer_name;
+      if (!customerMap.has(customerName)) {
+        customerMap.set(customerName, {
+          customer_name: customerName,
+          payments: [],
+          total_due: 0,
+          payment_count: 0,
+          last_payment_date: payment.date
+        });
+      }
+      
+      const customer = customerMap.get(customerName);
+      customer.payments.push(payment);
+      customer.payment_count++;
+      
+      // Update last payment date
+      if (new Date(payment.date) > new Date(customer.last_payment_date)) {
+        customer.last_payment_date = payment.date;
+      }
+    });
+    
+    // Now calculate due amounts for each customer
+    customerMap.forEach((customer) => {
+      // Sort payments by created_at (most recent first)
+      customer.payments.sort((a: any, b: any) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      
+      // Get the most recent payment (first in sorted array)
+      const mostRecentPayment = customer.payments[0];
+      
+      // Check if the most recent payment has a due amount > 0
+      if (mostRecentPayment && mostRecentPayment.due_amount && mostRecentPayment.due_amount > 0) {
+        customer.total_due = mostRecentPayment.due_amount;
+      } else {
+        customer.total_due = 0;
+      }
+    });
+    
+    // Return only customers with due amounts > 0
+    const result = Array.from(customerMap.values())
+      .filter(customer => customer.total_due > 0)
+      .sort((a, b) => b.total_due - a.total_due);
+    
+    console.log('All customers:', Array.from(customerMap.values()));
+    console.log('Customers with due amounts:', result);
+    return result;
+  },
+
+  // Get due amount summary
+  async getDueAmountSummary(userId: string) {
+    const customersWithDue = await this.getCustomersWithDueAmounts(userId);
+    
+    const totalDueAmount = customersWithDue.reduce((sum, customer) => sum + customer.total_due, 0);
+    const customersWithDueCount = customersWithDue.length;
+    const averageDuePerCustomer = customersWithDueCount > 0 ? totalDueAmount / customersWithDueCount : 0;
+    
+    return {
+      total_due_amount: totalDueAmount,
+      customers_with_due: customersWithDueCount,
+      average_due_per_customer: averageDuePerCustomer
+    };
+  },
+
+  // Calculate customer due amount
+  async calculateCustomerDueAmount(userId: string, customerName: string) {
+    const customersWithDue = await this.getCustomersWithDueAmounts(userId);
+    const customer = customersWithDue.find(c => c.customer_name === customerName);
+    return customer ? customer.total_due : 0;
   }
 };
 

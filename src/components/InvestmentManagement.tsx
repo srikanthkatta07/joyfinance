@@ -227,11 +227,11 @@ export function InvestmentManagement() {
                 className="w-full p-2 border border-gray-300 rounded-md"
               >
                 <option value="cash">Cash</option>
-                <option value="upi">UPI</option>
-                <option value="phonepe">PhonePe</option>
-                <option value="paytm">Paytm</option>
-                <option value="bank_transfer">Bank Transfer</option>
                 <option value="card">Card</option>
+                <option value="upi">UPI</option>
+                <option value="net_banking">Net Banking</option>
+                <option value="wallet">Wallet</option>
+                <option value="other">Other</option>
               </select>
             </div>
             <div>
