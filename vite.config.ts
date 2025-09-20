@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'car-logo-512.svg'],
       manifest: {
         name: 'JoyCarDecors',
         short_name: 'JoyCarDecors',
@@ -25,8 +25,8 @@ export default defineConfig(({ mode }) => ({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: '/joyfinance/',
+        start_url: '/joyfinance/',
         icons: [
           {
             src: 'favicon.svg',
@@ -34,19 +34,19 @@ export default defineConfig(({ mode }) => ({
             type: 'image/svg+xml'
           },
           {
-            src: 'pwa-192x192.png',
+            src: 'car-logo-512.svg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/svg+xml'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'car-logo-512.svg',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/svg+xml'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'car-logo-512.svg',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/svg+xml',
             purpose: 'any maskable'
           }
         ]

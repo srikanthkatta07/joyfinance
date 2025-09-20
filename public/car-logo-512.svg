@@ -1,0 +1,31 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#1f2937" stroke="#374151" stroke-width="8"/>
+  
+  <!-- Car body -->
+  <rect x="120" y="200" width="272" height="120" rx="20" fill="#ffffff"/>
+  
+  <!-- Car roof -->
+  <path d="M160 200 L200 140 L312 140 L352 200" stroke="#ffffff" stroke-width="8" fill="none"/>
+  
+  <!-- Wheels -->
+  <circle cx="180" cy="340" r="40" fill="#374151"/>
+  <circle cx="332" cy="340" r="40" fill="#374151"/>
+  
+  <!-- Wheel centers -->
+  <circle cx="180" cy="340" r="20" fill="#6b7280"/>
+  <circle cx="332" cy="340" r="20" fill="#6b7280"/>
+  
+  <!-- Headlights -->
+  <circle cx="140" cy="260" r="15" fill="#fbbf24"/>
+  <circle cx="372" cy="260" r="15" fill="#fbbf24"/>
+  
+  <!-- Windshield -->
+  <path d="M180 200 L200 160 L312 160 L332 200" fill="#e5e7eb" opacity="0.8"/>
+  
+  <!-- Car details -->
+  <rect x="200" y="220" width="112" height="60" rx="8" fill="#1f2937" opacity="0.1"/>
+  
+  <!-- Brand text -->
+  <text x="256" y="400" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="24" font-weight="bold">JoyCarDecors</text>
+</svg>
