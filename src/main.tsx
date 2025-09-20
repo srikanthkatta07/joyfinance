@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import Index from './pages/Index.tsx'
 import NotFound from './pages/NotFound.tsx'
@@ -10,34 +10,16 @@ import { Toaster } from './components/ui/toaster.tsx'
 import { Toaster as Sonner } from './components/ui/sonner.tsx'
 import { PWAUpdatePrompt } from './components/PWAUpdatePrompt.tsx'
 
-// Handle GitHub Pages redirect for SPA routing
-if (sessionStorage.redirect) {
-  const redirect = sessionStorage.redirect;
-  delete sessionStorage.redirect;
-  window.history.replaceState(null, '', redirect);
-}
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Index />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: "/auth",
-    element: <Auth />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
-  },
-]);
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <BrowserRouter basename="/joyfinance">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
       <Toaster />
       <Sonner />
       <PWAUpdatePrompt />
