@@ -84,7 +84,7 @@ export function Dashboard() {
       <div className="sticky top-0 z-10 bg-background border-b p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">JoyFinance</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">JoyCarDecors</h1>
             <p className="text-sm text-muted-foreground">Welcome, {user?.display_name || user?.username}</p>
           </div>
           <Button variant="outline" size="sm" onClick={handleSignOut}>

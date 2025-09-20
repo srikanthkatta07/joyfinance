@@ -8,6 +8,7 @@ import Auth from './pages/Auth.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import { Toaster } from './components/ui/toaster.tsx'
 import { Toaster as Sonner } from './components/ui/sonner.tsx'
+import { PWAUpdatePrompt } from './components/PWAUpdatePrompt.tsx'
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,7 @@ createRoot(document.getElementById('root')!).render(
       <RouterProvider router={router} />
       <Toaster />
       <Sonner />
+      <PWAUpdatePrompt />
     </AuthProvider>
   </StrictMode>,
 )

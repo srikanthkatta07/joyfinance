@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Smartphone, Lock, User, Phone } from "lucide-react";
+import { CarLogo } from "@/components/CarLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -83,9 +84,9 @@ export default function Auth() {
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-primary rounded-full mb-3">
-            <Smartphone className="w-6 h-6 text-primary-foreground" />
+            <CarLogo size={24} className="text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">JoyFinance</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">JoyCarDecors</h1>
           <p className="text-sm text-muted-foreground">Manage your finances</p>
         </div>
 
