@@ -7,7 +7,7 @@ Your JoyCarDecors app needs these environment variables to work with Supabase:
 ### For Development (.env.local)
 ```
 VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 VITE_SUPABASE_PROJECT_ID=your_supabase_project_id
 ```
 
@@ -17,8 +17,8 @@ VITE_SUPABASE_PROJECT_ID=your_supabase_project_id
 3. Click **New repository secret** and add these secrets:
    - **Name**: `VITE_SUPABASE_URL`
      **Value**: Your Supabase project URL (e.g., `https://yourproject.supabase.co`)
-   - **Name**: `VITE_SUPABASE_ANON_KEY`
-     **Value**: Your Supabase anonymous key (the long string starting with `eyJ...`)
+   - **Name**: `VITE_SUPABASE_PUBLISHABLE_KEY`
+     **Value**: Your Supabase publishable key (the long string starting with `eyJ...`)
    - **Name**: `VITE_SUPABASE_PROJECT_ID`
      **Value**: Your Supabase project ID (found in project settings)
 
@@ -28,7 +28,7 @@ VITE_SUPABASE_PROJECT_ID=your_supabase_project_id
 2. Click **Settings** → **API**
 3. Copy:
    - **Project URL** → Use as `VITE_SUPABASE_URL`
-   - **anon public** key → Use as `VITE_SUPABASE_ANON_KEY`
+   - **anon public** key → Use as `VITE_SUPABASE_PUBLISHABLE_KEY`
 4. Click **Settings** → **General**
 5. Copy:
    - **Project ID** → Use as `VITE_SUPABASE_PROJECT_ID`
@@ -36,7 +36,7 @@ VITE_SUPABASE_PROJECT_ID=your_supabase_project_id
 ## Important Notes
 
 - ✅ **Supabase works with GitHub Pages** - It's a backend service, so your frontend can connect to it from anywhere
-- ✅ **Environment variables are safe** - The anon key is meant to be public
+- ✅ **Environment variables are safe** - The publishable key is meant to be public
 - ✅ **Database will work** - All your data and authentication will work normally
 - ⚠️ **CORS settings** - Make sure your Supabase project allows requests from your GitHub Pages domain
 
@@ -71,7 +71,7 @@ Your app will be available at: `https://yourusername.github.io/joyfinance`
 
 ### Build Fails with "Environment variable not found"
 - Make sure you added the secrets in GitHub repository settings
-- Check that the secret names match exactly: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_SUPABASE_PROJECT_ID`
+- Check that the secret names match exactly: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_SUPABASE_PROJECT_ID`
 
 ### App loads but can't connect to Supabase
 - Check your Supabase URL and key are correct
