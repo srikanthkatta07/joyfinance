@@ -29,6 +29,18 @@ export function InvestmentManagement() {
     }
   }, [user]);
 
+  // Auto-refresh when component becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        loadInvestments();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user]);
+
   const loadInvestments = async () => {
     if (!user) return;
     

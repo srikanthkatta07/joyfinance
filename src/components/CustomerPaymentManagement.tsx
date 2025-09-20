@@ -31,6 +31,18 @@ export function CustomerPaymentManagement() {
     }
   }, [user]);
 
+  // Auto-refresh when component becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        loadPayments();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user]);
+
   const loadPayments = async () => {
     if (!user) return;
     

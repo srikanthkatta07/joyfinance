@@ -49,6 +49,25 @@ export function Dashboard() {
     loadData();
   }, [user]);
 
+  // Auto-refresh data when component mounts or user changes
+  const refreshData = async () => {
+    if (!user) return;
+    
+    try {
+      const [investmentsData, expensesData, paymentsData] = await Promise.all([
+        investmentAPI.getAll(user.id),
+        expenseAPI.getAll(user.id),
+        customerPaymentAPI.getAll(user.id)
+      ]);
+      
+      setInvestments(investmentsData);
+      setExpenses(expensesData);
+      setPayments(paymentsData);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     toast.success('Logged out successfully');
@@ -83,13 +102,13 @@ export function Dashboard() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b p-4">
         <div className="flex items-center justify-between">
-          <div>
+        <div>
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">JoyCarDecors</h1>
             <p className="text-sm text-muted-foreground">Welcome, {user?.display_name || user?.username}</p>
-          </div>
+        </div>
           <Button variant="outline" size="sm" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <LogOut className="h-4 w-4" />
+        </Button>
         </div>
       </div>
 
@@ -125,13 +144,13 @@ export function Dashboard() {
 
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Balance Card */}
-          <BalanceCard 
-            balance={currentBalance}
-            income={totalIncome}
-            expenses={totalExpenses}
-            investments={totalInvestments}
-          />
+      {/* Balance Card */}
+      <BalanceCard 
+        balance={currentBalance}
+        income={totalIncome}
+        expenses={totalExpenses}
+        investments={totalInvestments}
+      />
 
           {/* Income Section */}
           <Card>

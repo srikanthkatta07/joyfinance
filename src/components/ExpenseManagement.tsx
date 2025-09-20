@@ -30,6 +30,18 @@ export function ExpenseManagement() {
     }
   }, [user]);
 
+  // Auto-refresh when component becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        loadExpenses();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user]);
+
   const loadExpenses = async () => {
     if (!user) return;
     

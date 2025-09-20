@@ -20,13 +20,6 @@ export default function Auth() {
     password: "",
   });
 
-  const [signupForm, setSignupForm] = useState({
-    username: "",
-    mobileNumber: "",
-    password: "",
-    displayName: "",
-  });
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -38,42 +31,6 @@ export default function Auth() {
     } else {
       toast.success("Logged in successfully!");
       navigate("/");
-    }
-    
-    setLoading(false);
-  };
-
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error } = await signUp(
-        signupForm.username,
-        signupForm.mobileNumber,
-        signupForm.password,
-        signupForm.displayName
-      );
-      
-      if (error) {
-        console.error('Signup error:', error);
-        toast.error(error.message || "Signup failed. Please try again.");
-      } else {
-        toast.success("Account created successfully! You can now log in.");
-        // Reset form
-        setSignupForm({
-          username: "",
-          mobileNumber: "",
-          password: "",
-          displayName: "",
-        });
-        // Switch to login tab
-        const loginTab = document.querySelector('[value="login"]') as HTMLElement;
-        if (loginTab) loginTab.click();
-      }
-    } catch (error) {
-      console.error('Signup exception:', error);
-      toast.error("An unexpected error occurred. Please try again.");
     }
     
     setLoading(false);
@@ -91,9 +48,8 @@ export default function Auth() {
         </div>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login">
@@ -146,86 +102,6 @@ export default function Auth() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="signup">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-center">Create Account</CardTitle>
-                <CardDescription className="text-center">
-                  Join the shop management team
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-username">Username</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-username"
-                        type="text"
-                        placeholder="Choose username"
-                        className="pl-10"
-                        value={signupForm.username}
-                        onChange={(e) => setSignupForm(prev => ({ ...prev, username: e.target.value }))}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-mobile">Mobile Number</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-mobile"
-                        type="tel"
-                        placeholder="Enter mobile number"
-                        className="pl-10"
-                        value={signupForm.mobileNumber}
-                        onChange={(e) => setSignupForm(prev => ({ ...prev, mobileNumber: e.target.value }))}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-display-name">Display Name (Optional)</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-display-name"
-                        type="text"
-                        placeholder="Your display name"
-                        className="pl-10"
-                        value={signupForm.displayName}
-                        onChange={(e) => setSignupForm(prev => ({ ...prev, displayName: e.target.value }))}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="Create password"
-                        className="pl-10"
-                        value={signupForm.password}
-                        onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Creating Account..." : "Create Account"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </div>
