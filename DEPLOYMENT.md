@@ -52,16 +52,26 @@ In your Supabase project:
 
 **IMPORTANT**: You must enable GitHub Pages in your repository settings:
 
+### Step 1: Enable GitHub Pages
 1. **Go to your GitHub repository**
 2. **Click Settings** → **Pages**
 3. **Source**: Select **"GitHub Actions"**
 4. **Save** the settings
 
+### Step 2: Verify Repository Settings
+Make sure your repository:
+- ✅ **Is public** (required for free GitHub Pages)
+- ✅ **Has Pages enabled** with "GitHub Actions" as source
+- ✅ **Has Actions enabled** (Settings → Actions → General → Allow all actions)
+
+### Step 3: Run the Workflow
+The workflow will automatically enable Pages if needed, but you should still configure it manually first.
+
 This enables the GitHub Actions bot to deploy to Pages.
 
 ## Deployment Methods
 
-### Method 1: Manual Deployment (Recommended)
+### Manual Deployment (Only Method)
 1. **Go to your GitHub repository**
 2. **Click "Actions" tab**
 3. **Select "Deploy to GitHub Pages" workflow**
@@ -69,9 +79,7 @@ This enables the GitHub Actions bot to deploy to Pages.
 5. **Choose branch** (default: main)
 6. **Click "Run workflow"**
 
-### Method 2: Automatic Deployment
-- **Automatic deployment** happens when you push to the `main` branch
-- **No manual intervention** required
+**Note**: This workflow only runs when manually triggered - no automatic deployments.
 
 ## Deployment Steps
 
@@ -80,7 +88,7 @@ This enables the GitHub Actions bot to deploy to Pages.
 3. **Enable GitHub Pages** in repository settings:
    - Go to **Settings** → **Pages**
    - Source: **GitHub Actions**
-4. **Deploy manually** using Method 1 above, or **push to main** for automatic deployment
+4. **Deploy manually** using the steps above
 
 ## Testing Environment Variables
 
@@ -115,7 +123,18 @@ This error means GitHub Pages isn't properly configured:
 3. **Save** the settings
 4. **Re-run** the workflow
 
-### "403 Forbidden" Error
-- Make sure GitHub Pages is enabled with "GitHub Actions" as source
-- Check that your repository is public (required for free GitHub Pages)
-- Verify the workflow has the correct permissions
+### "Get Pages site failed" Error
+This error means GitHub Pages isn't properly configured:
+
+1. **Check repository is public** (required for free GitHub Pages)
+2. **Go to Settings** → **Pages**
+3. **Source**: Select **"GitHub Actions"** (not "Deploy from a branch")
+4. **Save** the settings
+5. **Wait 2-3 minutes** for GitHub to process the changes
+6. **Re-run** the workflow
+
+### "HttpError: Not Found" Error
+- Make sure your repository is **public**
+- Verify GitHub Pages is enabled with "GitHub Actions" as source
+- Check that Actions are enabled in repository settings
+- Wait a few minutes after enabling Pages before running the workflow
