@@ -48,6 +48,20 @@ In your Supabase project:
    - `https://yourusername.github.io/joyfinance`
    - `https://yourusername.github.io/joyfinance/`
 
+## Deployment Methods
+
+### Method 1: Manual Deployment (Recommended)
+1. **Go to your GitHub repository**
+2. **Click "Actions" tab**
+3. **Select "Deploy to GitHub Pages" workflow**
+4. **Click "Run workflow"**
+5. **Choose branch** (default: main)
+6. **Click "Run workflow"**
+
+### Method 2: Automatic Deployment
+- **Automatic deployment** happens when you push to the `main` branch
+- **No manual intervention** required
+
 ## Deployment Steps
 
 1. **Push your code** to GitHub
@@ -55,7 +69,7 @@ In your Supabase project:
 3. **Enable GitHub Pages** in repository settings:
    - Go to **Settings** → **Pages**
    - Source: **GitHub Actions**
-4. **The GitHub Action will automatically deploy** when you push to main branch
+4. **Deploy manually** using Method 1 above, or **push to main** for automatic deployment
 
 ## Testing Environment Variables
 
