@@ -48,6 +48,17 @@ In your Supabase project:
    - `https://yourusername.github.io/joyfinance`
    - `https://yourusername.github.io/joyfinance/`
 
+## GitHub Pages Setup (Required)
+
+**IMPORTANT**: You must enable GitHub Pages in your repository settings:
+
+1. **Go to your GitHub repository**
+2. **Click Settings** → **Pages**
+3. **Source**: Select **"GitHub Actions"**
+4. **Save** the settings
+
+This enables the GitHub Actions bot to deploy to Pages.
+
 ## Deployment Methods
 
 ### Method 1: Manual Deployment (Recommended)
@@ -95,3 +106,16 @@ Your app will be available at: `https://yourusername.github.io/joyfinance`
 ### PWA not working
 - Make sure you have the required icon files in `/public`
 - Check that the manifest is being generated correctly
+
+### "Permission denied to github-actions[bot]" Error
+This error means GitHub Pages isn't properly configured:
+
+1. **Go to Settings** → **Pages**
+2. **Source**: Select **"GitHub Actions"** (not "Deploy from a branch")
+3. **Save** the settings
+4. **Re-run** the workflow
+
+### "403 Forbidden" Error
+- Make sure GitHub Pages is enabled with "GitHub Actions" as source
+- Check that your repository is public (required for free GitHub Pages)
+- Verify the workflow has the correct permissions
