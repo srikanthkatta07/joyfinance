@@ -118,18 +118,18 @@ export function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b p-4">
-        <div className="flex items-center justify-between">
-        <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">JoyCarDecors</h1>
             <p className="text-sm text-muted-foreground">Welcome, {user?.display_name || user?.username}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <ChangePassword />
-          <AutoLogoutSettings />
-          <Button variant="outline" size="sm" onClick={handleSignOut}>
-          <LogOut className="h-4 w-4" />
-        </Button>
-        </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <ChangePassword />
+            <AutoLogoutSettings />
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -146,12 +146,12 @@ export function ExpenseManagement() {
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold">Expenses</h2>
-          <p className="text-muted-foreground">Total: {totalAmount.toLocaleString()}</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Expenses</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Total: {totalAmount.toLocaleString()}</p>
         </div>
-        <Button onClick={openDialog} size="sm">
+        <Button onClick={openDialog} size="sm" className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add Expense
         </Button>
@@ -171,13 +171,15 @@ export function ExpenseManagement() {
           expenses.map((expense) => (
             <Card key={expense.id}>
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex-1">
                     <h3 className="font-semibold">{expense.category}</h3>
                     <p className="text-sm text-muted-foreground">{expense.description}</p>
                     <p className="text-lg font-bold text-red-600">{expense.amount?.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">Payment: {expense.payment_method}</p>
-                    <p className="text-xs text-muted-foreground">Date: {expense.date}</p>
+                    <div className="flex flex-col sm:flex-row sm:gap-4 gap-1">
+                      <p className="text-xs text-muted-foreground">Payment: {expense.payment_method}</p>
+                      <p className="text-xs text-muted-foreground">Date: {expense.date}</p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button

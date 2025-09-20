@@ -137,10 +137,11 @@ export function ChangePassword() {
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2"
+        className="flex items-center gap-1 sm:gap-2"
       >
         <Key className="h-4 w-4" />
-        Change Password
+        <span className="hidden sm:inline">Change Password</span>
+        <span className="sm:hidden">Password</span>
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

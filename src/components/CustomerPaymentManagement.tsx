@@ -193,12 +193,12 @@ export function CustomerPaymentManagement() {
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold">Customer Payments</h2>
-          <p className="text-muted-foreground">Total: {totalAmount.toLocaleString()}</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Customer Payments</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Total: {totalAmount.toLocaleString()}</p>
         </div>
-        <Button onClick={openDialog} size="sm">
+        <Button onClick={openDialog} size="sm" className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add Payment
         </Button>
@@ -217,17 +217,17 @@ export function CustomerPaymentManagement() {
           <CardContent>
             <div className="space-y-3">
               {customersWithDue.map((customer) => (
-                <div key={customer.customer_name} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
+                <div key={customer.customer_name} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 border rounded-lg">
+                  <div className="flex-1">
                     <h4 className="font-semibold">{customer.customer_name}</h4>
                     <p className="text-sm text-muted-foreground">
                       {customer.payment_count} payment(s) • Last payment: {customer.last_payment_date}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
+                  <div className="flex items-center justify-between sm:justify-end gap-3">
+                    <div className="text-right sm:text-right">
                       <div className="text-lg font-bold text-orange-600">
-                        {customer.total_due.toLocaleString()}
+                        ₹{customer.total_due.toLocaleString()}
                       </div>
                       <div className="text-xs text-muted-foreground">Due Amount</div>
                     </div>
@@ -248,9 +248,11 @@ export function CustomerPaymentManagement() {
                         });
                         setIsDialogOpen(true);
                       }}
+                      className="w-full sm:w-auto"
                     >
                       <Plus className="h-4 w-4 mr-1" />
-                      Add Payment
+                      <span className="hidden sm:inline">Add Payment</span>
+                      <span className="sm:hidden">Pay</span>
                     </Button>
                   </div>
                 </div>
@@ -301,9 +303,9 @@ export function CustomerPaymentManagement() {
           filteredPayments.map((payment) => (
             <Card key={payment.id}>
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold">{payment.customer_name}</h3>
                       {payment.is_partial_payment && (
                         <span className="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded-full">
@@ -312,7 +314,7 @@ export function CustomerPaymentManagement() {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">{payment.description}</p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-lg font-bold text-green-600">{payment.amount?.toLocaleString()}</p>
                       {payment.is_partial_payment && payment.total_amount && (
                         <p className="text-sm text-muted-foreground">
@@ -325,8 +327,10 @@ export function CustomerPaymentManagement() {
                         Due: {payment.due_amount.toLocaleString()}
                       </p>
                     )}
-                    <p className="text-xs text-muted-foreground">Payment: {payment.payment_method}</p>
-                    <p className="text-xs text-muted-foreground">Date: {payment.date}</p>
+                    <div className="flex flex-col sm:flex-row sm:gap-4 gap-1">
+                      <p className="text-xs text-muted-foreground">Payment: {payment.payment_method}</p>
+                      <p className="text-xs text-muted-foreground">Date: {payment.date}</p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button

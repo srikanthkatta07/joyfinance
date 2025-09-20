@@ -31,10 +31,11 @@ export function AutoLogoutSettings() {
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2"
+        className="flex items-center gap-1 sm:gap-2"
       >
         <Settings className="h-4 w-4" />
-        Auto-Logout Settings
+        <span className="hidden sm:inline">Auto-Logout Settings</span>
+        <span className="sm:hidden">Auto-Logout</span>
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

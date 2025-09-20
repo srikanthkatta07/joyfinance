@@ -133,12 +133,12 @@ export function InvestmentManagement() {
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold">Investments</h2>
-          <p className="text-muted-foreground">Total: {totalAmount.toLocaleString()}</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Investments</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Total: {totalAmount.toLocaleString()}</p>
         </div>
-        <Button onClick={openDialog} size="sm">
+        <Button onClick={openDialog} size="sm" className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add Investment
         </Button>
@@ -158,13 +158,15 @@ export function InvestmentManagement() {
           investments.map((investment) => (
             <Card key={investment.id}>
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex-1">
                     <h3 className="font-semibold">{investment.name}</h3>
                     <p className="text-sm text-muted-foreground">{investment.description}</p>
                     <p className="text-lg font-bold text-green-600">{investment.amount?.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">Payment: {investment.payment_mode || 'N/A'}</p>
-                    <p className="text-xs text-muted-foreground">Date: {investment.date}</p>
+                    <div className="flex flex-col sm:flex-row sm:gap-4 gap-1">
+                      <p className="text-xs text-muted-foreground">Payment: {investment.payment_mode || 'N/A'}</p>
+                      <p className="text-xs text-muted-foreground">Date: {investment.date}</p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button
