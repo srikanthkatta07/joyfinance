@@ -8,7 +8,12 @@ import { Key, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export function ChangePassword() {
+interface ChangePasswordProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function ChangePassword({ open: externalOpen, onOpenChange: externalOnOpenChange }: ChangePasswordProps = {}) {
   const { changePassword } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -78,17 +83,7 @@ export function ChangePassword() {
         setErrors(prev => ({ ...prev, currentPassword: error.message }));
       } else {
         toast.success('Password changed successfully');
-        setIsOpen(false);
-        setFormData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        });
-        setErrors({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        });
+        handleSuccess();
       }
     } catch (error) {
       console.error('Error changing password:', error);
@@ -99,7 +94,9 @@ export function ChangePassword() {
   };
 
   const handleCancel = () => {
-    setIsOpen(false);
+    const newOpen = false;
+    setIsOpen(newOpen);
+    externalOnOpenChange?.(newOpen);
     setFormData({
       currentPassword: '',
       newPassword: '',
@@ -111,6 +108,26 @@ export function ChangePassword() {
       confirmPassword: ''
     });
   };
+
+  const handleSuccess = () => {
+    const newOpen = false;
+    setIsOpen(newOpen);
+    externalOnOpenChange?.(newOpen);
+    setFormData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setErrors({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+  };
+
+  // Use external open state if provided, otherwise use internal state
+  const dialogOpen = externalOpen !== undefined ? externalOpen : isOpen;
+  const setDialogOpen = externalOnOpenChange || setIsOpen;
 
   const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
     setShowPasswords(prev => ({
@@ -132,19 +149,7 @@ export function ChangePassword() {
   const passwordStrength = getPasswordStrength(formData.newPassword);
 
   return (
-    <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-1 sm:gap-2"
-      >
-        <Key className="h-4 w-4" />
-        <span className="hidden sm:inline">Change Password</span>
-        <span className="sm:hidden">Password</span>
-      </Button>
-
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -331,6 +336,5 @@ export function ChangePassword() {
           </form>
         </DialogContent>
       </Dialog>
-    </>
   );
 }

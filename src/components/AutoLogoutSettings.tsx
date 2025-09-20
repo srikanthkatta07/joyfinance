@@ -9,7 +9,12 @@ import { Settings, Shield, Clock, Eye, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export function AutoLogoutSettings() {
+interface AutoLogoutSettingsProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function AutoLogoutSettings({ open: externalOpen, onOpenChange: externalOnOpenChange }: AutoLogoutSettingsProps = {}) {
   const { autoLogoutSettings, updateAutoLogoutSettings } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [tempSettings, setTempSettings] = useState(autoLogoutSettings);
@@ -17,28 +22,24 @@ export function AutoLogoutSettings() {
   const handleSave = () => {
     updateAutoLogoutSettings(tempSettings);
     toast.success('Auto-logout settings saved');
-    setIsOpen(false);
+    const newOpen = false;
+    setIsOpen(newOpen);
+    externalOnOpenChange?.(newOpen);
   };
 
   const handleCancel = () => {
     setTempSettings(autoLogoutSettings);
-    setIsOpen(false);
+    const newOpen = false;
+    setIsOpen(newOpen);
+    externalOnOpenChange?.(newOpen);
   };
 
-  return (
-    <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-1 sm:gap-2"
-      >
-        <Settings className="h-4 w-4" />
-        <span className="hidden sm:inline">Auto-Logout Settings</span>
-        <span className="sm:hidden">Auto-Logout</span>
-      </Button>
+  // Use external open state if provided, otherwise use internal state
+  const dialogOpen = externalOpen !== undefined ? externalOpen : isOpen;
+  const setDialogOpen = externalOnOpenChange || setIsOpen;
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+  return (
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -144,6 +145,5 @@ export function AutoLogoutSettings() {
           </div>
         </DialogContent>
       </Dialog>
-    </>
   );
 }

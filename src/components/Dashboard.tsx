@@ -8,8 +8,7 @@ import { InvestmentManagement } from "./InvestmentManagement";
 import { ExpenseManagement } from "./ExpenseManagement";
 import { CustomerPaymentManagement } from "./CustomerPaymentManagement";
 import { AnalyticsDashboard } from "./AnalyticsDashboard";
-import { AutoLogoutSettings } from "./AutoLogoutSettings";
-import { ChangePassword } from "./ChangePassword";
+import { HamburgerMenu } from "./HamburgerMenu";
 import { investmentAPI, expenseAPI, customerPaymentAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -76,10 +75,6 @@ export function Dashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast.success('Logged out successfully');
-  };
 
   // Handle tab change and refresh data
   const handleTabChange = (value: string) => {
@@ -118,18 +113,14 @@ export function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">JoyCarDecors</h1>
-            <p className="text-sm text-muted-foreground">Welcome, {user?.display_name || user?.username}</p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">JoyCarDecors</h1>
+              <p className="text-sm text-muted-foreground">Welcome, {user?.display_name || user?.username}</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <ChangePassword />
-            <AutoLogoutSettings />
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
+          <HamburgerMenu />
         </div>
       </div>
 
