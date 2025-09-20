@@ -10,6 +10,13 @@ import { Toaster } from './components/ui/toaster.tsx'
 import { Toaster as Sonner } from './components/ui/sonner.tsx'
 import { PWAUpdatePrompt } from './components/PWAUpdatePrompt.tsx'
 
+// Handle GitHub Pages redirect for SPA routing
+if (sessionStorage.redirect) {
+  const redirect = sessionStorage.redirect;
+  delete sessionStorage.redirect;
+  window.history.replaceState(null, '', redirect);
+}
+
 const router = createBrowserRouter([
   {
     path: "/",

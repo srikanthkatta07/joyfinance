@@ -1,0 +1,4 @@
+# GitHub Pages redirects for SPA
+# Redirect all routes to index.html for React Router
+
+/*    /joyfinance/index.html   200
