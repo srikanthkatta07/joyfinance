@@ -138,3 +138,24 @@ This error means GitHub Pages isn't properly configured:
 - Verify GitHub Pages is enabled with "GitHub Actions" as source
 - Check that Actions are enabled in repository settings
 - Wait a few minutes after enabling Pages before running the workflow
+
+### "Resource not accessible by integration" Error
+This error means the GitHub Actions bot doesn't have proper permissions:
+
+1. **Check repository is PUBLIC** (required for free GitHub Pages)
+2. **Go to Settings** → **Pages**
+3. **Source**: Select **"GitHub Actions"** (not "Deploy from a branch")
+4. **Save** the settings
+5. **Go to Settings** → **Actions** → **General**
+6. **Workflow permissions**: Select **"Read and write permissions"**
+7. **Allow GitHub Actions to create and approve pull requests**: Check this box
+8. **Save** the settings
+9. **Wait 2-3 minutes** for changes to take effect
+10. **Re-run** the workflow
+
+### Alternative: Use Personal Access Token
+If the above doesn't work, you can use a Personal Access Token:
+
+1. **Create a Personal Access Token** (Settings → Developer settings → Personal access tokens)
+2. **Add it as a repository secret** named `PERSONAL_ACCESS_TOKEN`
+3. **Update the workflow** to use `github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}`
